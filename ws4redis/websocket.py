@@ -37,7 +37,7 @@ class WebSocket(object):
         If the conversion fails, the socket will be closed.
         """
         if not bytestring:
-            return u''
+            return six.u('')
         try:
             return bytestring.decode('utf-8')
         except UnicodeDecodeError:
@@ -91,7 +91,7 @@ class WebSocket(object):
             return
         if len(payload) < 2:
             raise WebSocketError('Invalid close frame: {0} {1}'.format(header, payload))
-        code = struct.unpack('!H', str(payload[:2]))[0]
+        code = struct.unpack('!H', six.binary_type(payload[:2]))[0]
         payload = payload[2:]
         if payload:
             validator = Utf8Validator()
@@ -152,7 +152,7 @@ class WebSocket(object):
         if an exception is called. Use `receive` instead.
         """
         opcode = None
-        message = ""
+        message = six.binary_type()
         while True:
             header, payload = self.read_frame()
             f_opcode = header.opcode
@@ -226,7 +226,7 @@ class WebSocket(object):
             message = six.binary_type(message)
         header = Header.encode_header(True, opcode, '', len(message), 0)
         try:
-            self.stream.write(header + message)
+            self.stream.write(six.b(header) + message)
         except socket_error:
             raise WebSocketError("Socket is dead")
 
@@ -305,9 +305,9 @@ class Header(object):
     def mask_payload(self, payload):
         payload = bytearray(payload)
         mask = bytearray(self.mask)
-        for i in xrange(self.length):
+        for i in range(self.length):
             payload[i] ^= mask[i % 4]
-        return str(payload)
+        return six.binary_type(payload)
 
     # it's the same operation
     unmask_payload = mask_payload

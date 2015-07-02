@@ -66,9 +66,9 @@ class RedisMessage(six.binary_type):
     def __new__(cls, value):
         if isinstance(value, six.string_types):
             if value != settings.WS4REDIS_HEARTBEAT:
-                return six.binary_type.__new__(cls, value)
+                return six.binary_type.__new__(cls, six.b(value))
         elif isinstance(value, list):
-            if len(value) >= 2 and value[0] == 'message':
+            if len(value) >= 3 and value[0] == 'message'.encode():
                 return six.binary_type.__new__(cls, value[2])
         return None
 
